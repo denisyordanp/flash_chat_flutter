@@ -4,6 +4,7 @@ import 'package:flash_chat_flutter/schemas/Message.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
+import '../widgets/message_bubble.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -15,7 +16,6 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   User? loggedInUser;
@@ -32,9 +32,6 @@ class ChatScreenState extends State<ChatScreen> {
   void _checkUser() {
     try {
       loggedInUser = _auth.currentUser;
-      if (loggedInUser != null) {
-        print(loggedInUser?.email);
-      }
     } catch (e) {
       print(e);
       _popBack();
@@ -62,6 +59,7 @@ class ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            Expanded(child: MessageStreamer(firestore: _firestore)),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -78,12 +76,13 @@ class ChatScreenState extends State<ChatScreen> {
                   ),
                   GestureDetector(
                     onTap: () async {
-                      try  {
-                        await _firestore.collection('messages').add(
-                            Message(text: messageText, sender: loggedInUser?.email ?? "").toMap()
-                        );
+                      try {
+                        await _firestore.collection('messages').add(Message(
+                                text: messageText,
+                                sender: loggedInUser?.email ?? "")
+                            .toMap());
                         controller.clear();
-                      } catch(e) {
+                      } catch (e) {
                         print(e);
                       }
                     },
@@ -106,5 +105,44 @@ class ChatScreenState extends State<ChatScreen> {
 
   void _popBack() {
     Navigator.pop(context);
+  }
+}
+
+class MessageStreamer extends StatelessWidget {
+  const MessageStreamer({
+    Key? key,
+    required FirebaseFirestore firestore,
+  })  : _firestore = firestore,
+        super(key: key);
+
+  final FirebaseFirestore _firestore;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: _firestore.collection('messages').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(
+                backgroundColor: Colors.lightBlueAccent),
+          );
+        }
+        return Column(
+          children: generateBubble(snapshot),
+        );
+      },
+    );
+  }
+
+  List<MessageBubble> generateBubble(
+      AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
+    return snapshot.data?.docs
+            .map((message) => Message(
+                text: message.data()['text'], sender: message.data()['sender']))
+            .map((message) =>
+                MessageBubble(text: message.text, sender: message.sender))
+            .toList() ??
+        List.empty();
   }
 }
