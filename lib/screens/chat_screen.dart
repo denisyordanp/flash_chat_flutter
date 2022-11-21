@@ -1,3 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat_flutter/schemas/Message.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
@@ -5,11 +8,39 @@ import '../constants.dart';
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
+  static const id = "chat_screen";
+
   @override
   ChatScreenState createState() => ChatScreenState();
 }
 
 class ChatScreenState extends State<ChatScreen> {
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  User? loggedInUser;
+
+  String? messageText;
+  TextEditingController controller = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUser();
+  }
+
+  void _checkUser() {
+    try {
+      loggedInUser = _auth.currentUser;
+      if (loggedInUser != null) {
+        print(loggedInUser?.email);
+      }
+    } catch (e) {
+      print(e);
+      _popBack();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,8 +49,9 @@ class ChatScreenState extends State<ChatScreen> {
         actions: <Widget>[
           IconButton(
               icon: const Icon(Icons.close),
-              onPressed: () {
-                //Implement logout functionality
+              onPressed: () async {
+                await _auth.signOut();
+                _popBack();
               }),
         ],
         title: const Text('⚡️Chat'),
@@ -37,17 +69,30 @@ class ChatScreenState extends State<ChatScreen> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
+                      controller: controller,
                       onChanged: (value) {
-                        //Do something with the user input.
+                        messageText = value;
                       },
                       decoration: kMessageTextFieldDecoration,
                     ),
                   ),
                   GestureDetector(
-                    onTap: () {},
-                    child: const Text(
-                      'Send',
-                      style: kSendButtonTextStyle,
+                    onTap: () async {
+                      try  {
+                        await _firestore.collection('messages').add(
+                            Message(text: messageText, sender: loggedInUser?.email ?? "").toMap()
+                        );
+                        controller.clear();
+                      } catch(e) {
+                        print(e);
+                      }
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.all(10),
+                      child: const Text(
+                        'Send',
+                        style: kSendButtonTextStyle,
+                      ),
                     ),
                   ),
                 ],
@@ -57,5 +102,9 @@ class ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
+  }
+
+  void _popBack() {
+    Navigator.pop(context);
   }
 }
