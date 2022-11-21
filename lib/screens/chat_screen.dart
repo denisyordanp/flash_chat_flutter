@@ -59,7 +59,7 @@ class ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Expanded(child: MessageStreamer(firestore: _firestore)),
+            Expanded(child: MessageStreamer(currentEmail: loggedInUser?.email)),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -109,18 +109,18 @@ class ChatScreenState extends State<ChatScreen> {
 }
 
 class MessageStreamer extends StatelessWidget {
-  const MessageStreamer({
-    Key? key,
-    required FirebaseFirestore firestore,
-  })  : _firestore = firestore,
-        super(key: key);
+  MessageStreamer({
+    super.key,
+    required this.currentEmail,
+  });
 
-  final FirebaseFirestore _firestore;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final String? currentEmail;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-      stream: _firestore.collection('messages').snapshots(),
+      stream: _firestore.collection('messages').orderBy('time').snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(
@@ -128,20 +128,26 @@ class MessageStreamer extends StatelessWidget {
                 backgroundColor: Colors.lightBlueAccent),
           );
         }
-        return Column(
-          children: generateBubble(snapshot),
+        return ListView(
+          reverse: true,
+          children: generateBubble(snapshot, currentEmail),
         );
       },
     );
   }
 
   List<MessageBubble> generateBubble(
-      AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot) {
-    return snapshot.data?.docs
+      AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
+      String? currentEmail) {
+    return snapshot.data?.docs.reversed
             .map((message) => Message(
-                text: message.data()['text'], sender: message.data()['sender']))
-            .map((message) =>
-                MessageBubble(text: message.text, sender: message.sender))
+                text: message.data()['text'],
+                sender: message.data()['sender'],
+                time: int.parse(message.data()['time'])))
+            .map((message) => MessageBubble(
+                text: message.text,
+                sender: message.sender,
+                isMe: message.sender == currentEmail))
             .toList() ??
         List.empty();
   }
