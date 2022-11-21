@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flash_chat_flutter/constants.dart';
 import 'package:flash_chat_flutter/screens/login_screen.dart';
 import 'package:flash_chat_flutter/screens/registration_screen.dart';
@@ -60,13 +61,16 @@ class WelcomeScreenState extends State<WelcomeScreen>
                     child: Image.asset('images/logo.png'),
                   ),
                 ),
-                const Text(
-                  'Flash Chat',
-                  style: TextStyle(
-                    fontSize: 45.0,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
+                AnimatedTextKit(animatedTexts: [
+                  TypewriterAnimatedText(
+                    "Flash Chat",
+                    textStyle: const TextStyle(
+                      fontSize: 45.0,
+                      fontWeight: FontWeight.w900,
+                    ),
+                    speed: const Duration(milliseconds: 100)
+                  )
+                ]),
               ],
             ),
             const SizedBox(
