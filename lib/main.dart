@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flash_chat_flutter/firebase_options.dart';
 import 'package:flash_chat_flutter/screens/login_screen.dart';
 import 'package:flash_chat_flutter/screens/registration_screen.dart';
 import 'package:flash_chat_flutter/screens/welcome_screen.dart';
@@ -10,6 +12,7 @@ class FlashChat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    setupFirebase();
     return MaterialApp(
       initialRoute: WelcomeScreen.id,
       routes: {
@@ -18,5 +21,9 @@ class FlashChat extends StatelessWidget {
         RegistrationScreen.id: (context) => const RegistrationScreen(),
       },
     );
+  }
+
+  Future setupFirebase() async {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   }
 }

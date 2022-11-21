@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.denisyordanp.flash_chat_flutter.flash_chat_flutter">
+    package="com.denisyordanp.flash_chat_flutter">
    <application
         android:label="flash_chat_flutter"
         android:name="${applicationName}"
