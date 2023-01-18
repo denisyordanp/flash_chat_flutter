@@ -1,16 +1,14 @@
-# flash_chat_flutter
+# Flash Chat
 
 A simple chat app using flutter.
 
-## Getting Started
+## Features
+- Login
+- Register
+- Group chat
 
-This project is a starting point for a Flutter application.
+## Using
+- Firebase Authentication
+- Firebase Firestore
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+https://user-images.githubusercontent.com/48426396/213104100-4de7f9a8-3b25-43da-91f8-e5f0ab955d4f.mp4
