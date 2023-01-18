@@ -55,6 +55,7 @@ class WelcomeScreenState extends State<WelcomeScreen>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Hero(
                   tag: kLogoHeroTag,
@@ -67,7 +68,7 @@ class WelcomeScreenState extends State<WelcomeScreen>
                   TypewriterAnimatedText(
                     "Flash Chat",
                     textStyle: const TextStyle(
-                      fontSize: 45.0,
+                      fontSize: 40.0,
                       fontWeight: FontWeight.w900,
                     ),
                     speed: const Duration(milliseconds: 100)
